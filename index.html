@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Tugas Kuliah Pribadi</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Halaman Login (Tanpa Daftar Akun) -->
+  <section id="auth-view" class="auth-wrapper">
+    <div class="auth-card">
+      <h1>Portal Tugas Kuliah</h1>
+      <p class="muted">Khusus akses pribadi — masuk menggunakan user dan sandi Anda.</p>
+
+      <form id="auth-form">
+        <div class="form-group">
+          <label for="auth-user">User</label>
+          <input type="text" id="auth-user" required placeholder="Masukkan user" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label for="auth-password">Sandi</label>
+          <input type="password" id="auth-password" required placeholder="Masukkan sandi" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary full-width">Masuk</button>
+        <p id="auth-error" class="error-text"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Aplikasi Utama -->
+  <div id="app-view" class="hidden">
+    <header class="topbar">
+      <div>
+        <h1>Portal Tugas Kuliah</h1>
+        <small id="storage-mode-label" class="muted"></small>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" id="btn-open-create" class="btn btn-primary">+ Tambah Tugas</button>
+        <button type="button" id="btn-logout" class="btn btn-outline">Logout</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- Dashboard Ringkasan -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Total Tugas</span>
+          <strong id="stat-total" class="stat-value">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Belum Dikerjakan</span>
+          <strong id="stat-todo" class="stat-value todo">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Sedang Dikerjakan</span>
+          <strong id="stat-progress" class="stat-value progress">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Selesai</span>
+          <strong id="stat-done" class="stat-value done">0</strong>
+        </div>
+      </section>
+
+      <!-- Pencarian & Filter -->
+      <section class="toolbar card">
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Cari nama tugas, mata kuliah, atau dosen..."
+        />
+        <select id="filter-status">
+          <option value="ALL">Semua Status</option>
+          <option value="Belum dikerjakan">Belum dikerjakan</option>
+          <option value="Sedang dikerjakan">Sedang dikerjakan</option>
+          <option value="Selesai">Selesai</option>
+        </select>
+        <select id="filter-course">
+          <option value="ALL">Semua Mata Kuliah</option>
+        </select>
+      </section>
+
+      <!-- Daftar Tugas -->
+      <section id="tasks-list" class="tasks-grid"></section>
+    </main>
+  </div>
+
+  <!-- Modal Tambah / Edit Tugas -->
+  <div id="task-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Tambah Tugas Baru</h2>
+        <button type="button" id="btn-close-modal" class="icon-btn">&times;</button>
+      </div>
+
+      <form id="task-form">
+        <input type="hidden" id="task-id" />
+        <input type="hidden" id="existing-pdf-url" />
+        <input type="hidden" id="existing-pdf-path" />
+        <input type="hidden" id="existing-pdf-name" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-name">Nama Tugas *</label>
+            <input type="text" id="task-name" required placeholder="Contoh: Laporan Praktikum Basis Data" />
+          </div>
+          <div class="form-group">
+            <label for="task-course">Mata Kuliah *</label>
+            <input type="text" id="task-course" required placeholder="Contoh: Basis Data" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-lecturer">Dosen *</label>
+            <input type="text" id="task-lecturer" required placeholder="Contoh: Dr. Budi Santoso" />
+          </div>
+          <div class="form-group">
+            <label for="task-deadline">Deadline *</label>
+            <input type="datetime-local" id="task-deadline" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-status">Status Tugas *</label>
+            <select id="task-status" required>
+              <option value="Belum dikerjakan">Belum dikerjakan</option>
+              <option value="Sedang dikerjakan">Sedang dikerjakan</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="task-submit-link">Link Pengumpulan Tugas</label>
+            <input type="url" id="task-submit-link" placeholder="https://drive.google.com/... atau https://..." />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="task-desc">Deskripsi</label>
+          <textarea id="task-desc" rows="3" placeholder="Catatan pengerjaan atau instruksi tugas..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="task-pdf">Upload File PDF</label>
+          <input type="file" id="task-pdf" accept="application/pdf,.pdf" />
+          <small id="current-pdf-info" class="muted"></small>
+        </div>
+
+        <p id="form-error" class="error-text"></p>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-cancel-modal" class="btn btn-outline">Batal</button>
+          <button type="submit" id="btn-save-task" class="btn btn-primary">Simpan Tugas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Lihat & Unduh PDF Online -->
+  <div id="pdf-modal" class="modal hidden">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2 id="pdf-modal-title">Pratinjau PDF</h2>
+        <div class="topbar-actions">
+          <a id="pdf-download-link" href="#" download class="btn btn-primary btn-sm">Unduh PDF</a>
+          <button type="button" id="btn-close-pdf-modal" class="icon-btn">&times;</button>
+        </div>
+      </div>
+      <iframe id="pdf-frame" class="pdf-viewer" title="Pratinjau Dokumen PDF"></iframe>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
